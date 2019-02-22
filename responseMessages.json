@@ -1,0 +1,4 @@
+{
+  "TRAIN_MODEL_SUCCESS": "Training model successfully executed",
+  "RECOGNIZE_IMAGE_SUCCESS": "Face recognition successfully executed in image"
+}
