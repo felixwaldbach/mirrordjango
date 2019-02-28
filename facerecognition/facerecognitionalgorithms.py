@@ -16,6 +16,8 @@ import cv2
 import os
 import base64
 import os.path
+from imutils.face_utils import FaceAligner
+import dlib
 
 
 def recognize_image(payload):
@@ -40,6 +42,9 @@ def recognize_image(payload):
     filename = './facerecognition/output/' + payload['mirror_uuid'] + '/' + 'temporary.png'
     with open(filename, 'wb') as f:
         f.write(imgdata)
+    align_faces({
+        'image': filename
+    })
     image = cv2.imread(filename)
     image = imutils.resize(image, width=600)
     (h, w) = image.shape[:2]
@@ -53,55 +58,57 @@ def recognize_image(payload):
     # faces in the input image
     detector.setInput(imageBlob)
     detections = detector.forward()
-    best_detection = {
-        'name': '',
-        'proba': 0
-    }
+
     # loop over the detections
     for i in range(0, detections.shape[2]):
+        # extract the confidence (i.e., probability) associated with the
+        # prediction
+        confidence = detections[0, 0, i, 2]
         # filter out weak detections
-        # compute the (x, y)-coordinates of the bounding box for the
-        # face
-        box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-        (startX, startY, endX, endY) = box.astype("int")
+        if confidence > 0.5:
+            # compute the (x, y)-coordinates of the bounding box for the
+            # face
+            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+            (startX, startY, endX, endY) = box.astype("int")
 
-        # extract the face ROI
-        face = image[startY:endY, startX:endX]
-        (fH, fW) = face.shape[:2]
+            # extract the face ROI
+            face = image[startY:endY, startX:endX]
+            (fH, fW) = face.shape[:2]
 
-        # ensure the face width and height are sufficiently large
-        if fW < 20 or fH < 20:
-            continue
-        # construct a blob for the face ROI, then pass the blob
-        # through our face embedding model to obtain the 128-d
-        # quantification of the face
-        faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),
-                                         (0, 0, 0), swapRB=True, crop=False)
-        embedder.setInput(faceBlob)
-        vec = embedder.forward()
+            # ensure the face width and height are sufficiently large
+            if fW < 20 or fH < 20:
+                continue
+            # construct a blob for the face ROI, then pass the blob
+            # through our face embedding model to obtain the 128-d
+            # quantification of the face
+            faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),
+                                             (0, 0, 0), swapRB=True, crop=False)
+            embedder.setInput(faceBlob)
+            vec = embedder.forward()
 
-        # perform classification to recognize the face
-        preds = recognizer.predict_proba(vec)[0]
-        j = np.argmax(preds)
-        proba = preds[j]
-        name = le.classes_[j]
+            # perform classification to recognize the face
+            preds = recognizer.predict_proba(vec)[0]
+            j = np.argmax(preds)
+            proba = preds[j]
+            name = le.classes_[j]
 
-        # draw the bounding box of the face along with the associated
-        # probability
-        # text = "{}: {:.2f}%".format(name, proba * 100)
-        # print(text)
-        if(proba > best_detection['proba']):
-            best_detection['name'] = name
-            best_detection['proba'] = proba
-        if os.path.isfile(filename):
-            os.remove(filename)
+            # draw the bounding box of the face along with the associated
+            # probability
+            text = "{}: {:.2f}%".format(name, proba * 100)
+            print(text)
+
+        # if os.path.isfile(filename):
+    #     #   os.remove(filename)
+    # for ad in all_detections:
+    #     if not best_detection or ad['oc'] > best_detection['oc']:
+    #         best_detection = ad
     with open('responseMessages.json', 'r') as responseMessages:
         responseMessage = json.load(responseMessages)
         return {
             'status': True,
-            'message': responseMessage['RECOGNIZE_IMAGE_SUCCESS'],
-            'name': best_detection['name'],
-            'proba': best_detection['proba']
+            'message': responseMessage['RECOGNIZE_IMAGE_SUCCESS']
+            # 'name': best_detection['name'],
+            # 'proba': best_detection['oc']
         }
 
 
@@ -328,18 +335,46 @@ def train_model(payload):
     recognizer = SVC(C=1.0, kernel="linear", probability=True)
     recognizer.fit(data["embeddings"], labels)
 
+    print("So far so good")
     # write the actual face recognition model to disk
     f = open(payload["recognizer"], "wb")
     f.write(pickle.dumps(recognizer))
     f.close()
-
+    print("Opening le")
     # write the label encoder to disk
     f = open(payload["le"], "wb")
     f.write(pickle.dumps(le))
     f.close()
     with open('responseMessages.json', 'r') as responseMessages:
+        print("Sending response")
         responseMessage = json.load(responseMessages)
         return {
             'status': True,
             'message': responseMessage['TRAIN_MODEL_SUCCESS']
         }
+
+
+def align_faces(payload):
+    # initialize dlib's face detector (HOG-based) and then create
+    # the facial landmark predictor and the face aligner
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor('./shape_predictor_68_face_landmarks.dat')
+    fa = FaceAligner(predictor, desiredFaceWidth=256)
+
+    # grab the paths to the input images in our dataset
+    print("[INFO] quantifying faces...")
+
+    image = cv2.imread(payload['image'])
+    # image = imutils.resize(image, width=800)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    rects = detector(gray, 2)
+    # loop over the face detections
+    for rect in rects:
+        print("Face found")
+        faceAligned = fa.align(image, gray, rect)
+        cv2.imwrite(payload['image'], faceAligned)
+    # os.remove(imagePath)
+    return {
+        'status': True,
+        'message': 'Faces aligned'
+    }
