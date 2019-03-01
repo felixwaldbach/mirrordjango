@@ -21,7 +21,6 @@ def handle_recognize_image(request):
         'mirror_uuid': payload['mirror_uuid']
     }
     response = recognize_image(recognize_payload)
-    print(response)
     return HttpResponse(json.dumps(response))
 
 
@@ -50,12 +49,12 @@ def handle_store(request):
             response = extract_embeddings(embeddings_payload)
             try:
                 response = handle_train(payload['mirror_uuid'])
+                response['last_image'] = payload['last_image']
                 return HttpResponse(json.dumps(response))
             except Exception as e:
                 return HttpResponse(json.dumps({
                     'status': False,
-                    'message': "An error occurde",
-                    'error': e
+                    'message': e
                 }))
         else:
             return HttpResponse(json.dumps({
@@ -76,11 +75,11 @@ def handle_train(mirror_uuid):
         response = train_model(train_payload)
         return {
             'status': True,
-            'response': response
+            'message': response
         }
     except Exception as e:
         print(e)
         return {
             'status': False,
-            'error': e
+            'message': e
         }

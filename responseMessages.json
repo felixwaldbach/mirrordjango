@@ -1,4 +1,6 @@
 {
   "TRAIN_MODEL_SUCCESS": "Training model successfully executed",
-  "RECOGNIZE_IMAGE_SUCCESS": "Face recognition successfully executed in image"
+  "RECOGNIZE_IMAGE_SUCCESS": "Face recognition successfully executed in image",
+  "EXTRACT_EMBEDDINGS_SUCCESS": "Embeddings successfully extracted",
+  "ALIGN_FACE_SUCCESS": "Face aligned successfully"
 }
