@@ -1,7 +1,7 @@
 # Mirrordjango
 
 ## What does this Repository contain?
-This repository holds code for a basic [Django Python Webserver}(https://www.djangoproject.com/) using a REST API. 
+This repository holds code for a basic [Django Python Webserver](https://www.djangoproject.com/) using a REST API. 
 The api serves with routes to trigger face recognition algorithms. For details about these algorithms see [Adrian Rosebrock's 
 PyImageSearch](https://www.pyimagesearch.com/2018/06/18/face-recognition-with-opencv-python-and-deep-learning/) blog.
 Most of the code used in this approach was inspired by his blog and is working on the same principles. Thank you, Adrian!
