@@ -10,7 +10,7 @@ This project was created to perform face recognition in order to authenticate us
 currently building for university. However, since the smart mirror application itself is developed for and running on a RaspberryPi with limited processing power, the face recognition
 is performed externally on this little server. This project has only been tested on a 2018 MacBook Pro so far.
 
-## Get started
+## Getting started
 First of all, ensure to have a running python instance ready on your machine. We used an anaconda virtual environment with Python 3.6 installed.
 To execute the project, install following packages using pip:
 ```pip install django
