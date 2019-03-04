@@ -33,7 +33,7 @@ def handle_store(request):
         print('Processing')
         imgdata = base64.b64decode(payload['base64'].replace('data:image/png;base64,', ''))
         filename = './facerecognition/output/' + payload['mirror_uuid'] + '/' + payload['user_id'] + '/' + payload[
-            'name']  # I assume you have a way of picking unique filenames
+            'filename']  # I assume you have a way of picking unique filenames
         with open(filename, 'wb') as f:
             print('Saving file ' + filename)
             f.write(imgdata)
