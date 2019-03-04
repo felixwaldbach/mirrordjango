@@ -98,7 +98,7 @@ def recognize_image(payload):
 
             # draw the bounding box of the face along with the associated
             # probability
-            text = "{}: {:.2f}%".format(name, proba * 100)
+            text = "{}: {:.2f}%".format(user_id, proba * 100)
             print(text)
             if (proba > best_detection['proba']):
                 best_detection['proba'] = proba
