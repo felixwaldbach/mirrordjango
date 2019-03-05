@@ -12,8 +12,14 @@ is performed externally on this little server. This project has only been tested
 
 ## Getting started
 First of all, ensure to have a running python instance ready on your machine. We used an anaconda virtual environment with Python 3.6 installed.
-To execute the project, install following packages using pip:
-```pip install django
+To execute the project, install following packages brew:
+```
+brew install cmake
+brew install boost
+```
+Then, install following packages using pip:
+```
+pip install django
 pip install django-cors-headers
 pip install imutils
 pip install numpy
