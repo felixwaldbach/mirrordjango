@@ -59,16 +59,17 @@ def recognize_image(payload):
     detector.setInput(imageBlob)
     detections = detector.forward()
 
+    best_detection = {
+        'user_id': None,
+        'proba': 0.0
+    }
+
     # loop over the detections
     for i in range(0, detections.shape[2]):
         # extract the confidence (i.e., probability) associated with the
         # prediction
         confidence = detections[0, 0, i, 2]
         # filter out weak detections
-        best_detection = {
-            'user_id': None,
-            'proba': 0.0
-        }
         if confidence > 0.5:
             # compute the (x, y)-coordinates of the bounding box for the
             # face
@@ -101,13 +102,17 @@ def recognize_image(payload):
             text = "{}: {:.2f}%".format(user_id, proba * 100)
             print(text)
             if (proba > best_detection['proba']):
+                print("is better")
+                print(user_id)
                 best_detection['proba'] = proba
                 best_detection['user_id'] = user_id
+            print(best_detection)
         if os.path.isfile(filename):
             os.remove(filename)
     # for ad in all_detections:
     #     if not best_detection or ad['oc'] > best_detection['oc']:
     #         best_detection = ad
+    print(best_detection)
     with open('responseMessages.json', 'r') as responseMessages:
         responseMessage = json.load(responseMessages)
         return {
@@ -134,6 +139,8 @@ def extract_embeddings(payload):
     # grab the paths to the input images in our dataset
     print("[INFO] quantifying faces...")
     imagePaths = list(paths.list_images(payload["dataset"]))
+    imagePaths = imagePaths + list(paths.list_images("./facerecognition/unknown"))
+    print(imagePaths)
 
     # initialize our lists of extracted facial embeddings and
     # corresponding people names
@@ -149,6 +156,7 @@ def extract_embeddings(payload):
         print("[INFO] processing image {}/{}".format(i + 1,
                                                      len(imagePaths)))
         user_id = imagePath.split(os.path.sep)[-2]
+        print(user_id)
 
         # load the image, resize it to have a width of 600 pixels (while
         # maintaining the aspect ratio), and then grab the image

@@ -12,16 +12,24 @@ from facerecognition.facerecognitionalgorithms import extract_embeddings, train_
 
 def handle_recognize_image(request):
     payload = json.loads(request.body.decode("utf-8"))
-    recognize_payload = {
-        'recognizer': "./facerecognition/output/" + payload['mirror_uuid'] + "/" + payload['mirror_uuid'] +
-                      "-recognizer.pickle",
-        'le': "./facerecognition/output/" + payload['mirror_uuid'] + "/" + payload['mirror_uuid'] +
-              "-le.pickle",
-        'image_base64': payload['image_base64'],
-        'mirror_uuid': payload['mirror_uuid']
-    }
-    response = recognize_image(recognize_payload)
-    return HttpResponse(json.dumps(response))
+    if os.path.isdir("./facerecognition/output/" + payload['mirror_uuid']):
+        recognize_payload = {
+            'recognizer': "./facerecognition/output/" + payload['mirror_uuid'] + "/" + payload['mirror_uuid'] +
+                          "-recognizer.pickle",
+            'le': "./facerecognition/output/" + payload['mirror_uuid'] + "/" + payload['mirror_uuid'] +
+                  "-le.pickle",
+            'image_base64': payload['image_base64'],
+            'mirror_uuid': payload['mirror_uuid']
+        }
+        response = recognize_image(recognize_payload)
+        return HttpResponse(json.dumps(response))
+    else:
+        with open('responseMessages.json', 'r') as responseMessages:
+            responseMessage = json.load(responseMessages)
+            return HttpResponse(json.dumps({
+                'status': True,
+                'message': responseMessage['NO_MIRROR_DIRECTORY']
+            }))
 
 
 def handle_store(request):
