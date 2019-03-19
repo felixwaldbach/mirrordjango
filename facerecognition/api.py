@@ -35,12 +35,12 @@ def handle_recognize_image(request):
 def handle_store(request):
     if request.method == 'POST':
         payload = json.loads(request.body.decode("utf-8"))
-        if not os.path.isdir("./facerecognition/output/" + payload['mirror_uuid'] + '/' + payload['user_id']):
-            os.makedirs("./facerecognition/output/" + payload['mirror_uuid'] + '/' + payload['user_id'])
+        if not os.path.isdir("./facerecognition/output/" + payload['mirror_uuid'] + '/' + payload['userId']):
+            os.makedirs("./facerecognition/output/" + payload['mirror_uuid'] + '/' + payload['userId'])
 
         print('Processing')
         imgdata = base64.b64decode(payload['base64'].replace('data:image/png;base64,', ''))
-        filename = './facerecognition/output/' + payload['mirror_uuid'] + '/' + payload['user_id'] + '/' + payload[
+        filename = './facerecognition/output/' + payload['mirror_uuid'] + '/' + payload['userId'] + '/' + payload[
             'filename']  # I assume you have a way of picking unique filenames
         with open(filename, 'wb') as f:
             print('Saving file ' + filename)

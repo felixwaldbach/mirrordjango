@@ -60,7 +60,7 @@ def recognize_image(payload):
     detections = detector.forward()
 
     best_detection = {
-        'user_id': None,
+        'userId': None,
         'proba': 0.0
     }
 
@@ -95,17 +95,17 @@ def recognize_image(payload):
             preds = recognizer.predict_proba(vec)[0]
             j = np.argmax(preds)
             proba = preds[j]
-            user_id = le.classes_[j]
+            userId = le.classes_[j]
 
             # draw the bounding box of the face along with the associated
             # probability
-            text = "{}: {:.2f}%".format(user_id, proba * 100)
+            text = "{}: {:.2f}%".format(userId, proba * 100)
             print(text)
             if (proba > best_detection['proba']):
                 print("is better")
-                print(user_id)
+                print(userId)
                 best_detection['proba'] = proba
-                best_detection['user_id'] = user_id
+                best_detection['userId'] = userId
             print(best_detection)
         if os.path.isfile(filename):
             os.remove(filename)
@@ -118,7 +118,7 @@ def recognize_image(payload):
         return {
             'status': True,
             'message': responseMessage['RECOGNIZE_IMAGE_SUCCESS'],
-            'user_id': best_detection['user_id'],
+            'userId': best_detection['userId'],
             'proba': best_detection['proba']
         }
 
@@ -155,8 +155,8 @@ def extract_embeddings(payload):
         # extract the person name from the image path
         print("[INFO] processing image {}/{}".format(i + 1,
                                                      len(imagePaths)))
-        user_id = imagePath.split(os.path.sep)[-2]
-        print(user_id)
+        userId = imagePath.split(os.path.sep)[-2]
+        print(userId)
 
         # load the image, resize it to have a width of 600 pixels (while
         # maintaining the aspect ratio), and then grab the image
@@ -209,13 +209,13 @@ def extract_embeddings(payload):
 
                 # add the name of the person + corresponding face
                 # embedding to their respective lists
-                knownUserIds.append(user_id)
+                knownUserIds.append(userId)
                 knownEmbeddings.append(vec.flatten())
                 total += 1
 
     # dump the facial embeddings + names to disk
     print("[INFO] serializing {} encodings...".format(total))
-    data = {"embeddings": knownEmbeddings, "user_ids": knownUserIds}
+    data = {"embeddings": knownEmbeddings, "userIds": knownUserIds}
     f = open(payload["embeddings"], "wb")
     f.write(pickle.dumps(data))
     f.close()
@@ -236,7 +236,7 @@ def train_model(payload):
     # encode the labels
     print("[INFO] encoding labels...")
     le = LabelEncoder()
-    labels = le.fit_transform(data["user_ids"])
+    labels = le.fit_transform(data["userIds"])
 
     # train the model used to accept the 128-d embeddings of the face and
     # then produce the actual face recognition
@@ -244,12 +244,10 @@ def train_model(payload):
     recognizer = SVC(C=1.0, kernel="linear", probability=True)
     recognizer.fit(data["embeddings"], labels)
 
-    print("So far so good")
     # write the actual face recognition model to disk
     f = open(payload["recognizer"], "wb")
     f.write(pickle.dumps(recognizer))
     f.close()
-    print("Opening le")
     # write the label encoder to disk
     f = open(payload["le"], "wb")
     f.write(pickle.dumps(le))
