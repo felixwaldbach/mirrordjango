@@ -139,8 +139,8 @@ def extract_embeddings(payload):
     # grab the paths to the input images in our dataset
     print("[INFO] quantifying faces...")
     imagePaths = list(paths.list_images(payload["dataset"]))
-    imagePaths = imagePaths + list(paths.list_images("./facerecognition/unknown"))
-    print(imagePaths)
+    if os.path.isdir("./facerecognition/unknown"):
+        imagePaths = imagePaths + list(paths.list_images("./facerecognition/unknown"))
 
     # initialize our lists of extracted facial embeddings and
     # corresponding people names
