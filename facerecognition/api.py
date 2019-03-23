@@ -48,7 +48,7 @@ def handle_store(request):
             response = align_faces({
                 'image': filename
             })
-        if payload['last_image']:
+        if payload['lastImage']:
             embeddings_payload = {
                 'dataset': "./facerecognition/output/" + payload['mirror_uuid'],
                 'embeddings': "./facerecognition/output/" + payload['mirror_uuid'] + "/" + payload[
@@ -57,7 +57,7 @@ def handle_store(request):
             response = extract_embeddings(embeddings_payload)
             try:
                 response = handle_train(payload['mirror_uuid'])
-                response['last_image'] = payload['last_image']
+                response['lastImage'] = payload['last_image']
                 return HttpResponse(json.dumps(response))
             except Exception as e:
                 return HttpResponse(json.dumps({
