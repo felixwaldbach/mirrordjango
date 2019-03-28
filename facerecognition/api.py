@@ -57,7 +57,7 @@ def handle_store(request):
             response = extract_embeddings(embeddings_payload)
             try:
                 response = handle_train(payload['mirror_uuid'])
-                response['lastImage'] = payload['last_image']
+                response['lastImage'] = payload['lastImage']
                 return HttpResponse(json.dumps(response))
             except Exception as e:
                 return HttpResponse(json.dumps({

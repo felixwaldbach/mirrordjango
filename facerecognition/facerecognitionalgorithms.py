@@ -42,9 +42,11 @@ def recognize_image(payload):
     filename = './facerecognition/output/' + payload['mirror_uuid'] + '/' + 'temporary.png'
     with open(filename, 'wb') as f:
         f.write(imgdata)
-    align_faces({
+    faces = align_faces({
         'image': filename
     })
+    if not faces:
+        return False
     image = cv2.imread(filename)
     image = imutils.resize(image, width=600)
     (h, w) = image.shape[:2]
@@ -275,13 +277,12 @@ def align_faces(payload):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     rects = detector(gray, 2)
     # loop over the face detections
+    if not rects:
+        return False
     for rect in rects:
         print("Face found")
         faceAligned = fa.align(image, gray, rect)
         cv2.imwrite(payload['image'], faceAligned)
     with open('responseMessages.json', 'r') as responseMessages:
         responseMessage = json.load(responseMessages)
-        return {
-            'status': True,
-            'message': responseMessage['ALIGN_FACE_SUCCESS']
-        }
+        return True
