@@ -30,7 +30,7 @@ pip install dlib
 
 To execute the face recognition algorithms, a facial landmark file is needed in the root directory of this project. It can be downloaded together with the source code of [Adrian Rosebrock's blog post on face alignment](https://www.pyimagesearch.com/2017/05/22/face-alignment-with-opencv-and-python/). It's called `shape_predictor_68_face_landmarks.dat` Check out the post if you are there already :) 
 
-Furthermore, for better results we suggest including an unknown face dataset inside the project. Take for instance 20 images of random people, put them inside a folder named `unknown` and store the folder inside `./facerecognition` folder.
+Furthermore, for better results we suggest including a random face dataset inside the project. Take for instance 20 images of random people, put them inside a folder named `unknown` and store the folder inside `./facerecognition` folder.
 
 ## Usage
 Run the server py executing the following command in the project directory:
